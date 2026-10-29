@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>ทดลองส่งข้อมูลเข้าฐานข้อมูล</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+</head>
+<body>
+
+<h1>ทดลองส่งข้อมูลเข้าฐานข้อมูล</h1>
+
+<input id="name" placeholder="พิมพ์ชื่อ">
+<button onclick="save()">บันทึก</button>
+
+<h2>รายชื่อในฐานข้อมูล</h2>
+<ul id="list"></ul>
+
+<script>
+// ขั้นที่ 1: ต่อสายไปหาฐานข้อมูล (ใส่ URL และ KEY ของโปรเจกต์คุณ)
+const db = supabase.createClient(
+  'https://tulbmqcgbxekyykvxyxp.supabase.co',
+  'sb_publishable_jKcOCMpTXg0gtYmdZDDzmQ_Lr3Qp_ju'
+);
+
+// ขั้นที่ 2: ส่งข้อมูลเข้าฐานข้อมูล (ทำตอนกดปุ่ม)
+async function save() {
+  const name = document.getElementById('name').value;
+
+  // insert = เพิ่ม 1 แถวใหม่ในตาราง messages
+  const { error } = await db.from('messages').insert({ name: name });
+
+  if (error) {
+    alert('ผิดพลาด: ' + error.message);
+    return;
+  }
+  document.getElementById('name').value = '';
+  show();
+}
+
+// ขั้นที่ 3: ดึงข้อมูลกลับมาแสดง
+async function show() {
+  // select = อ่านทุกแถวจากตาราง messages
+  const { data } = await db.from('messages').select('*').order('id', { ascending: false });
+
+  const list = document.getElementById('list');
+  list.innerHTML = '';
+  for (const row of data) {
+    const li = document.createElement('li');
+    li.textContent = row.name;
+    list.appendChild(li);
+  }
+}
+
+show(); // โหลดรายการตอนเปิดหน้าเว็บ
+</script>
+
+</body>
+</html>
